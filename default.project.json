@@ -1,0 +1,11 @@
+{
+  "name": "JunkyardLaunch",
+  "servePort": 34879,
+  "servePlaceIds": [70696662307362],
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": { "Shared": { "$path": "src/shared" } },
+    "ServerScriptService": { "JunkyardServer": { "$path": "src/server" } },
+    "StarterPlayer": { "StarterPlayerScripts": { "JunkyardClient": { "$path": "src/client" } } }
+  }
+}

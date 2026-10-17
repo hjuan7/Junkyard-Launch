@@ -1,0 +1,15 @@
+name: Static validation
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned standalone tools
+        shell: powershell
+        run: .\scripts\install-tools.ps1
+      - name: Validate
+        shell: powershell
+        run: .\scripts\validate.ps1

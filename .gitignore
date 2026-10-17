@@ -1,0 +1,13 @@
+.tools/
+build/
+*.rbxl
+*.rbxlx
+*.rbxm
+*.rbxmx
+*.rblx
+*.rbxl.lock
+*.rbxlx.lock
+*.log
+.env
+.env.*
+.DS_Store
