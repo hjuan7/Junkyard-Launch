@@ -51,6 +51,19 @@ spawn.Name, spawn.Size, spawn.CFrame = "YardSpawn", Vector3.new(6, 0.3, 6), CFra
 spawn.Anchored, spawn.CanCollide, spawn.Neutral = true, true, true
 spawn.Transparency, spawn.Duration = 1, 0
 spawn.Parent = world
+-- Small flat chevrons lead toward the field without adding collision or markers.
+for _, z in { 5, -4, -13 } do
+	for _, side in { -1, 1 } do
+		part(
+			world,
+			"FieldChevron",
+			Vector3.new(0.5, 0.06, 3),
+			CFrame.new(8 + side * 0.9, if z > 0 then 0.64 else 0.12, z) * CFrame.Angles(0, side * 0.65, 0),
+			gold,
+			false
+		)
+	end
+end
 local function sign(
 	adornee: BasePart,
 	title: string,
@@ -179,12 +192,14 @@ local function addPlayer(player: Player)
 	player.RespawnLocation = spawn
 	player:SetAttribute("Carried", 0)
 	player:SetAttribute("Capacity", Config.Capacity)
+	player:SetAttribute("DepositSerial", 0)
+	player:SetAttribute("LastDepositAmount", 0)
 	player.CharacterAdded:Connect(function(character)
 		carried[player] = 0
 		player:SetAttribute("Carried", 0)
 		local root = character:WaitForChild("HumanoidRootPart", 10)
 		if root and player.Parent == Players then
-			character:PivotTo(CFrame.new(8, 4, 29))
+			character:PivotTo(CFrame.lookAt(Vector3.new(8, 4, 29), Vector3.new(8, 4, -43)))
 		end
 	end)
 end
@@ -214,9 +229,11 @@ RunService.Heartbeat:Connect(function(dt)
 			if amount > 0 and (root.Position - depositPosition).Magnitude <= Config.DepositRadius then
 				carried[player] = 0
 				player:SetAttribute("Carried", 0)
+				player:SetAttribute("LastDepositAmount", amount)
 				deposited += amount
 				buildScrap += amount
 				renderRocket()
+				player:SetAttribute("DepositSerial", (player:GetAttribute("DepositSerial") or 0) + 1)
 			end
 		end
 	end
@@ -247,13 +264,15 @@ RunService.Heartbeat:Connect(function(dt)
 			end
 		elseif scrap.collector then
 			local root = roots[scrap.collector]
-			local alpha = math.clamp((now - scrap.collectedAt) / 0.2, 0, 1)
+			local alpha = math.clamp((now - scrap.collectedAt) / 0.35, 0, 1)
 			if root then
-				scrap.model:PivotTo(scrap.home:Lerp(root.CFrame, alpha))
+				scrap.model:PivotTo(
+					scrap.home:Lerp(root.CFrame * CFrame.new(0, 0.5, -1.5), 1 - (1 - alpha) ^ 2)
+				)
 			end
 			for _, p in scrap.model:GetChildren() do
 				if p:IsA("BasePart") then
-					p.Transparency = alpha
+					p.Transparency = math.clamp((alpha - 0.45) / 0.55, 0, 1)
 				end
 			end
 		end
